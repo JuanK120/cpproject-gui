@@ -8,26 +8,29 @@ import SolutionItem from "./SolutionItem";
 import styles from "./SolutionList.module.css";
 
 const SolutionList = (args) => {
-  const [currentSolution, setCurrentSolution] = useState([[1, 2, 3], 12]);
+  const [currentSolution, setCurrentSolution] = useState("");
   const [solutionStatus, setSolutionStatus] = useState("inProgress");
+
+  async function fetchSolution(data) {
+    await axios.post("http://localhost:8000/RunWithForm/", data).then((res) => {
+      const solution = res.data;
+      setCurrentSolution(solution);
+      setSolutionStatus(solution[1]);
+    });
+  }
 
   useEffect(() => {
     let data = args.SolveData;
     if (data.dataType == "File") {
       let data = new FormData();
       data.append("file", args.SolveData);
-      console.log(data);
       axios.post("http://localhost:8000/RunWithFile/", data).then((res) => {
         const solution = res.data;
-        console.log(solution);
         setCurrentSolution(solution);
+        setSolutionStatus(solution[1]);
       });
     } else if (data.dataType == "Form") {
-      axios.post("http://localhost:8000/RunWithForm/", data).then((res) => {
-        const solution = res.data;
-        console.log("here");
-        setCurrentSolution(solution);
-      });
+      fetchSolution(data);
     }
   }, [args.SolveData]);
 
@@ -38,7 +41,7 @@ const SolutionList = (args) => {
   );
 
   if (currentSolution != "") {
-    if (solucion[1] == "Unsatisfiable") {
+    if (currentSolution[1] == "Unsatisfiable") {
       solucion = (
         <Card title="Problema Insatisfactible">
           <p>
@@ -48,10 +51,34 @@ const SolutionList = (args) => {
           </p>
         </Card>
       );
+    } else if (currentSolution[1] == "I") {
+      solucion = (
+        <Card title="Desconocido">
+          <p>
+            <strong>Parece que occurio algun problema con la ejecucion</strong>
+          </p>
+        </Card>
+      );
     } else {
-      solucion = currentSolution[0].map((escene) => (
+      let aux = currentSolution[0].Sol.map((escene) => (
         <SolutionItem className={`col-2`} key={escene} number={escene} />
       ));
+      solucion = (
+        <>
+          <div className={`row`}>
+            {aux}
+            <p>
+              <strong>Fin</strong>
+            </p>
+          </div>
+
+          <div className={`row`}>
+            <p>
+              El costo es : <strong> {`$ ${currentSolution[0].costo}`} </strong>
+            </p>
+          </div>
+        </>
+      );
     }
   }
 
@@ -59,7 +86,7 @@ const SolutionList = (args) => {
     <div className="container">
       <div className={`row align-items-center ${styles.row}`}>
         <h3 className="col-10"> la solucion es : </h3>
-        {solutionStatus == "done" ? (
+        {solutionStatus != "inProgress" ? (
           <></>
         ) : (
           <div className="col-2">
@@ -72,15 +99,13 @@ const SolutionList = (args) => {
       <div className={`row align-center ${styles.row}`}>
         <Card>
           <div className={`row`}>
-            <p>El orden de Ensayo es :</p>
-          </div>
-          <div className={`row`}>{solucion}</div>
-          <div className={`row`}>
-            <p>
-              El costo es : <strong> {`$ ${currentSolution[1]}`} </strong>
-            </p>
+            <div className={`row`}>
+              <p>El orden de Ensayo es :</p>
+            </div>
+            {solucion}
           </div>
         </Card>
+
       </div>
     </div>
   );

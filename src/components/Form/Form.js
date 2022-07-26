@@ -36,16 +36,18 @@ const Form = (args) => {
       Disponibilidad: [],
       NumEvitaciones: 0,
       Evitar: [],
+      problemType: "",
     };
 
-    modelData.Actores = [...actorsInfo.map((actor) => actor.name)];
+    modelData.Actores = `Actores = {${actorsInfo.map(
+      (actor) => `${actor.name}`
+    )}};`.replace("/,}", "}");
     modelData.NumActores = numActors;
     modelData.NumEscenas = numEscenes;
     modelData.Escenas = new Array(numActors);
     for (let i = 0; i < modelData.Escenas.length; i++) {
       modelData.Escenas[i] = new Array(numEscenes + 1).fill(0);
     }
-
     modelData.Duracion = new Array(numEscenes);
     modelData.Disponibilidad = new Array();
     modelData.Evitar = new Array();
@@ -61,18 +63,19 @@ const Form = (args) => {
       modelData.Escenas[i][numEscenes] = +actorsInfo[i].cost;
       for (let k = 0; k < actorsInfo[i].toAvoid.length; k++) {
         if (actorsInfo[i].toAvoid[k] != 0) {
-          modelData.Evitar.push([i, k]);
+          modelData.Evitar.push([actorsInfo[i].name, actorsInfo[k].name]);
         }
       }
-      if (
-        actorsInfo[i].disponibility != "" &&
-        actorsInfo[i].disponibility != 0
-      ) {
-        modelData.Disponibilidad.push([i, +actorsInfo[i].disponibility]);
-      }
+      modelData.Disponibilidad.push([actorsInfo[i].name, +actorsInfo[i].disponibility]);
     }
     modelData.NumActoresConDisponibilidad = modelData.Disponibilidad.length;
     modelData.NumEvitaciones = modelData.Evitar.length;
+    if (modelData.NumEvitaciones == 0) {
+      modelData.problemType = "Simple";
+    } else {
+      modelData.problemType = "Complex";
+    }
+
     args.onSolve(modelData);
   };
 
@@ -268,6 +271,7 @@ const Form = (args) => {
           </form>
         </Card>
       </div>
+      {/* 
       <div className="container col-12 col-md-5 offset-md-1">
         <Card title="Suba un Archivo dzn">
           <form onSubmit={onsubmitWithFileHandler}>
@@ -298,6 +302,7 @@ const Form = (args) => {
           </form>
         </Card>
       </div>
+      */}
     </div>
   );
 };

@@ -1,0 +1,28 @@
+.background_dark {
+    background-color: #d91f28;
+    color: floralwhite;
+  }
+  
+  .background_light {
+    background-color: #cd3d42;
+    color: floralwhite;
+  }
+  
+  .background_pale {
+    background-color: #d86363;
+  }
+  
+  .row {
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+
+  .card{
+    border-radius: 20%;
+  }
+  .card blockquote{
+    font-size: small;
+    font-style: italic;
+  }
+
+  
